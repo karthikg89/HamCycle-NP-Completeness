@@ -1,7 +1,7 @@
 \documentclass[11pt]{article}
 \usepackage{geometry,graphicx}
 \usepackage{tikz}
-\usetikzlibrary{arrows}
+\usetikzlibrary{arrows,calc}
 \geometry{
   lmargin = 1in,
   rmargin = 1in,
@@ -15,6 +15,12 @@
 \maketitle
 
 \vfill
+\section{Abstract}
+The Hamiltonian Cycle Problem is easily stated as: given a graph G,
+with verticies V and edges E, find a \emph{cycle} that visits every vertex.
+Everyone has heard that it is NP-Complete but most people have not seen the proof.
+This paper will enlighten those people by providing detailed proofs of why 4 classic variations of
+the problem are NP-Complete.
 
 \section{Introdution}
 The Hamiltonian Cycle Problem is easily stated as: given a graph G, 
@@ -321,7 +327,58 @@ undirected graph G' with a Hamiltonian Path from $s^{out}$ to $t^{in}$. In order
 directed graph, we will replace each node $u \in E - {s,t}$ with three nodes; $u^{in}$, 
 $u^{mid}$, and $u^{out}$. For each triplet, add edges connecting $u^{in}$ and $u^{out}$ 
 to $u^{mid}$. Finally, add an edge from $a^{out}$ to $b^{in}$ if there exists an edge 
-from $a$ to $b$ in G.
+from $a$ to $b$ in G. This tranformation is illustrated below.
+
+\begin{center}
+\begin{tabular}{p{3.5in}p{3.5in}}
+\begin{tikzpicture}
+\centering
+\tikzset{vertex/.style = {shape=circle,draw,minimum size=1.5em, fill=gray!20}}
+\tikzset{edge/.style = {->,> = latex'}}
+\foreach \pos/\name in {{(0,0)/s}, {(1,-2)/1}, {(3,2)/2}, {(4,-1.5)/t}}
+\node[vertex] (\name) at \pos {$\name$}; 
+
+\foreach \from/\to in {s/2,2/1,1/t}{
+\draw[preaction={%But before that
+draw,yellow,-,% Draw yellow without any arrow head
+double=yellow,
+double distance=2\pgflinewidth,
+}] (\from) to (\to);
+}
+
+
+\foreach \from/\to in {s/1, 1/t, 2/1, 1/t, 2/t, s/2}
+\draw [edge] (\from) to (\to);
+
+\draw[edge] (2) to [bend right] (s);
+\end{tikzpicture}
+
+&
+\centering
+\begin{tikzpicture}
+\tikzset{vertex/.style = {shape=circle,draw,minimum size=1.5em, fill=gray!20}}
+\tikzset{edge/.style = {- = latex'}}
+
+\node[vertex] (s) at (0,0) {$s$};
+\node[vertex] (t) at (4,-1.5) {$t$};
+
+\foreach \pos/\name in {{(1,-1.5)/1^{in}}, {(1,-3)/1^{mid}}, {(1,-4.5)/1^{out}}, {(3,4)/2^{in}}, {(3,2.5)/2^{mid}}, {(3,1)/2^{out}}}
+\node[vertex] (\name) at \pos {\tiny $\name$};
+
+\foreach \from/\to in {1^{in}/1^{mid}, 1^{mid}/1^{out}, 2^{in}/2^{mid}, 2^{mid}/2^{out}, 1^{out}/t, s/2^{in}, 2^{out}/1^{in}}{
+\draw[preaction={%But before that                                                
+draw,yellow,-,% Draw yellow without any arrow head                                        
+double=yellow,
+double distance=2\pgflinewidth,
+}] (\from) to (\to);
+}
+
+\foreach \from/\to in {1^{in}/1^{mid}, 1^{mid}/1^{out}, 2^{in}/2^{mid}, 2^{mid}/2^{out}, s/1^{in}, 1^{out}/t, 2^{out}/1^{in}, 2^{out}/t, s/2^{in}, 2^{out}/s}
+\draw [edge] (\from) to (\to);
+
+\end{tikzpicture}
+\end{tabular}
+\end{center}
 
 I claim that G has a Hamiltonian Path from $s$ to $t$ if and only if G' has a Hamiltonian Path from $s'$ to $t'$.
 To prove the left to right implication, imagine a Hamiltonian path starts at $s$, 
@@ -341,12 +398,80 @@ resembles the one above. Since paths of this form have a directed equivalent, th
 complete. This reduction takes time $O(2|V| + 2|E|)$ since you need to add two verticies
 and two nodes in G' for almost every node in G.
 
-\section{Dir Ham Path $\leq_P$ Dir Ham Cycle \textbf{AND} \\ Undir Ham Path $\leq_P$ Undir Ham Cycle}
+\section{Dir Ham Path $\leq_P$ Dir Ham Cycle \textbf{AND} \\ Undir Ham Path $\leq_P$ Undir Ham}
 I know what you are thinking: ``Karthik how are you going to show two poly time reductions
 in one section!??'' I'll show you.
 
 Given a graph $G = (V,E)$ (directed or undirected) with a Hamiltonian Path from $s$ to $t$ , I will construct
- the graph $G' = (V,E \cup {(t,s)})$ by just adding an edge from $t$ to $s$. I claim 
+ the graph $G' = (V,E \cup {(t,s)})$ by just adding an edge from $t$ to $s$. Here is an
+illustration of this construction on a simple directed graph.
+
+\begin{center}
+\begin{tabular}{p{3.5in}p{3.5in}}
+\begin{center}
+\begin{tikzpicture}
+
+\tikzset{vertex/.style = {shape=circle,draw,minimum size=1.5em, fill=gray!20}}
+\tikzset{edge/.style = {->,> = latex'}}
+\foreach \pos/\name in {{(0,0)/s}, {(1,-2)/1}, {(3,2)/2}, {(4,-1.5)/t}}
+\node[vertex] (\name) at \pos {$\name$};
+
+\foreach \from/\to in {s/2,2/1,1/t}{
+\draw[preaction={%But before that
+draw,yellow,-,% Draw yellow without any arrow head
+double=yellow,
+double distance=2\pgflinewidth,
+}] (\from) to (\to);
+}
+
+
+\foreach \from/\to in {s/1, 1/t, 2/1, 1/t, 2/t, s/2}
+\draw [edge] (\from) to (\to);
+
+\draw[edge] (2) to [bend right] (s);
+\end{tikzpicture}
+\end{center}
+&
+\begin{center}
+\begin{tikzpicture}
+
+\tikzset{vertex/.style = {shape=circle,draw,minimum size=1.5em, fill=gray!20}}
+\tikzset{edge/.style = {->,> = latex'}}
+\foreach \pos/\name in {{(0,0)/s}, {(1,-2)/1}, {(3,2)/2}, {(4,-1.5)/t}}
+\node[vertex] (\name) at \pos {$\name$};
+
+\foreach \from/\to in {s/2,2/1,1/t}{
+\draw[preaction={%But before that
+draw,yellow,-,% Draw yellow without any arrow head
+double=yellow,
+double distance=2\pgflinewidth,
+}] (\from) to (\to);
+}
+
+\draw[- = latex',
+preaction={%But before that
+draw,green,-,% Draw yellow without any arrow head
+double=green,
+double distance=2\pgflinewidth,
+}] (t)  to [bend left] (2,-3) to [bend left] (0,-1.8);
+
+\draw[->,> = latex',
+preaction={%But before that
+draw,green,-,% Draw yellow without any arrow head
+double=green,
+double distance=2\pgflinewidth,
+}] (0,-1.8)  to [bend left=20] (s);
+
+
+\foreach \from/\to in {s/1, 1/t, 2/1, 1/t, 2/t, s/2}
+\draw [edge] (\from) to (\to);
+
+\draw[edge] (2) to [bend right] (s);
+\end{tikzpicture}
+\end{center}
+\end{tabular}
+\end{center}
+ I claim 
 that G has a Hamiltonian Path from $s$ to $t$ if and only if G' has a Hamiltonian 
 Cycle. Lets say G has a Hamiltonian Path, if you follow the path from $s$ to $t$ in G'
 then take the edge from $t$ to $s$ you will arrive back at $s$, thus completeing the 
